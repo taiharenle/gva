@@ -17,14 +17,16 @@ export const useAppStore = defineStore('app', () => {
     layout_side_collapsed_width: 80,
     layout_side_item_height: 48,
     show_watermark: true,
-    side_mode: 'normal'
+    side_mode: 'normal',
+    // 页面过渡动画配置
+    transition_type: 'slide'
   })
 
   const isDark = useDark({
     selector: 'html',
     attribute: 'class',
     valueDark: 'dark',
-    valueLight: 'light',
+    valueLight: 'light'
   })
 
   const preferredDark = usePreferredDark()
@@ -50,10 +52,10 @@ export const useAppStore = defineStore('app', () => {
   }
 
   const toggleDevice = (e) => {
-    if(e === 'mobile'){
+    if (e === 'mobile') {
       drawerSize.value = '100%'
       operateMinWith.value = '80'
-    }else {
+    } else {
       drawerSize.value = '800'
       operateMinWith.value = '240'
     }
@@ -93,7 +95,32 @@ export const useAppStore = defineStore('app', () => {
     config.side_mode = e
   }
 
-    // 监听色弱模式和灰色模式
+  const toggleTransition = (e) => {
+    config.transition_type = e
+  }
+
+  const baseCoinfg = {
+    weakness: false,
+    grey: false,
+    primaryColor: '#3b82f6',
+    showTabs: true,
+    darkMode: 'auto',
+    layout_side_width: 256,
+    layout_side_collapsed_width: 80,
+    layout_side_item_height: 48,
+    show_watermark: true,
+    side_mode: 'normal',
+    // 页面过渡动画配置
+    transition_type: 'slide'
+  }
+
+  const resetConfig = () => {
+    for (let baseCoinfgKey in baseCoinfg) {
+      config[baseCoinfgKey] = baseCoinfg[baseCoinfgKey]
+    }
+  }
+
+  // 监听色弱模式和灰色模式
   watchEffect(() => {
     document.documentElement.classList.toggle('html-weakenss', config.weakness)
     document.documentElement.classList.toggle('html-grey', config.grey)
@@ -121,6 +148,8 @@ export const useAppStore = defineStore('app', () => {
     toggleConfigSideCollapsedWidth,
     toggleConfigSideItemHeight,
     toggleConfigWatermark,
-    toggleSideMode
+    toggleSideMode,
+    toggleTransition,
+    resetConfig
   }
 })

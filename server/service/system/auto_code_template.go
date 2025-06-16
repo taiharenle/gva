@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils/autocode"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -217,14 +218,14 @@ func (s *autoCodeTemplate) Preview(ctx context.Context, info request.AutoCode) (
 }
 
 func (s *autoCodeTemplate) generate(ctx context.Context, info request.AutoCode, entity model.SysAutoCodePackage) (map[string]strings.Builder, map[string]string, map[string]utilsAst.Ast, error) {
-	templates, asts, _, err := AutoCodePackage.templates(ctx, entity, info)
+	templates, asts, _, err := AutoCodePackage.templates(ctx, entity, info, false)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	code := make(map[string]strings.Builder)
 	for key, create := range templates {
 		var files *template.Template
-		files, err = template.ParseFiles(key)
+		files, err = template.New(filepath.Base(key)).Funcs(autocode.GetTemplateFuncMap()).ParseFiles(key)
 		if err != nil {
 			return nil, nil, nil, errors.Wrapf(err, "[filpath:%s]读取模版文件失败!", key)
 		}
@@ -322,7 +323,7 @@ func (s *autoCodeTemplate) GetApiAndServer(info request.AutoFunc) (map[string]st
 
 func (s *autoCodeTemplate) getTemplateStr(t string, info request.AutoFunc) (string, error) {
 	tempPath := filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "resource", "function", t+".tpl")
-	files, err := template.ParseFiles(tempPath)
+	files, err := template.New(filepath.Base(tempPath)).Funcs(autocode.GetTemplateFuncMap()).ParseFiles(tempPath)
 	if err != nil {
 		return "", errors.Wrapf(err, "[filepath:%s]读取模版文件失败!", tempPath)
 	}
